@@ -64,3 +64,5 @@ Run this checklist after every screen change using Chrome DevTools or Chrome MCP
 - [ ] App is responsive (1280x800 minimum)
 - [ ] All API calls use `http://localhost:8000` as the base URL
 - [ ] Loading states are shown while data is fetching
+- [ ] Page title is "CX Review Tool" or similar
+- [ ] No broken images or missing assets
