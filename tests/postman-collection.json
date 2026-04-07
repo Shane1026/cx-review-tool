@@ -1,0 +1,174 @@
+{
+  "info": {
+    "name": "CX Review Analysis API",
+    "_postman_id": "cx-review-api-v1-0",
+    "description": "API tests for the CX Review Thematic Analysis Tool",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "upload_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Returns ok status', () => {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.status).to.equal('ok');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Upload CSV",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Returns upload_id', () => {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.have.property('upload_id');",
+              "  pm.expect(json).to.have.property('count');",
+              "  pm.collectionVariables.set('upload_id', json.upload_id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "data/sample-reviews.csv",
+              "description": "CSV file with reviews"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/upload",
+          "host": ["{{base_url}}"],
+          "path": ["upload"]
+        }
+      }
+    },
+    {
+      "name": "Trigger Analysis",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Returns status field', () => {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.have.property('status');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/analyze/{{upload_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["analyze", "{{upload_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Results",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Returns array of reviews', () => {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.be.an('array');",
+              "  if (json.length > 0) {",
+              "    pm.expect(json[0]).to.have.property('theme');",
+              "    pm.expect(json[0]).to.have.property('sentiment');",
+              "    pm.expect(json[0]).to.have.property('key_phrases');",
+              "  }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/results/{{upload_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["results", "{{upload_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Analytics",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Returns theme_distribution', () => {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json).to.have.property('theme_distribution');",
+              "  pm.expect(json).to.have.property('sentiment_breakdown');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/analytics/{{upload_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["analytics", "{{upload_id}}"]
+        }
+      }
+    }
+  ]
+}
